@@ -20,7 +20,7 @@
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
-            <camunda:inputParameter name="url">http://localhost:8081/connector/add</camunda:inputParameter>
+            <camunda:inputParameter name="url">http://localhost:8082/connector/add</camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="payload">{
 "a":${num1},
@@ -40,13 +40,39 @@
       <bpmn:outgoing>Flow_1f2v121</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1f2v121" sourceRef="Activity_1ocl2ge" targetRef="Activity_03e06ph" />
-    <bpmn:serviceTask id="Activity_03e06ph" name="Multiply output">
+    <bpmn:serviceTask id="Activity_03e06ph" name="Response * 2" camunda:asyncBefore="true">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="url">http://localhost:8082/connector/square/${addOutput}</camunda:inputParameter>
             <camunda:inputParameter name="method">GET</camunda:inputParameter>
-            <camunda:outputParameter name="multiplyResponse">${response}</camunda:outputParameter>
+            <camunda:outputParameter name="multiplyResponse">
+              <camunda:script scriptFormat="javascript">var json = S(response);
+print(json);
+var output = json.prop("result");
+output;
+</camunda:script>
+            </camunda:outputParameter>
+            <camunda:outputParameter name="jsonResponse">
+              <camunda:script scriptFormat="javascript">if (statusCode != 200) {
+    S("[]");
+} else {
+    S(response);
+}</camunda:script>
+            </camunda:outputParameter>
+            <camunda:outputParameter name="statusCode">
+              <camunda:script scriptFormat="javascript">statusCode;</camunda:script>
+            </camunda:outputParameter>
+            <camunda:outputParameter name="incident">
+              <camunda:script scriptFormat="javascript">var json = S(response);
+var errorMessage = json.prop("message");
+
+if(statusCode != 200) {
+
+throw new org.camunda.bpm.engine.ScriptEvaluationException("ERROR, ServiceResponseCode: "+ statusCode+": Service error message:"+ errorMessage);
+
+}</camunda:script>
+            </camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -58,7 +84,7 @@
     <bpmn:userTask id="Activity_0m4udjx" name="Show Response">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="multiplyResponse" label="Multiple Output" type="long" />
+          <camunda:formField id="multiplyResponse" label="Multiple Output" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0u1i398</bpmn:incoming>
@@ -69,27 +95,28 @@
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0ogfrr2" sourceRef="Activity_0m4udjx" targetRef="Event_04yn37p" />
   </bpmn:process>
+  <bpmn:error id="Error_03ot2cj" name="Error_2ovr2v8" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Test-WorkFlow">
-      <bpmndi:BPMNEdge id="Flow_160g9vg_di" bpmnElement="Flow_160g9vg">
-        <di:waypoint x="188" y="120" />
-        <di:waypoint x="240" y="120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0uxhio8_di" bpmnElement="Flow_0uxhio8">
-        <di:waypoint x="340" y="120" />
-        <di:waypoint x="400" y="120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1f2v121_di" bpmnElement="Flow_1f2v121">
-        <di:waypoint x="500" y="120" />
-        <di:waypoint x="560" y="120" />
+      <bpmndi:BPMNEdge id="Flow_0ogfrr2_di" bpmnElement="Flow_0ogfrr2">
+        <di:waypoint x="820" y="120" />
+        <di:waypoint x="882" y="120" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0u1i398_di" bpmnElement="Flow_0u1i398">
         <di:waypoint x="660" y="120" />
         <di:waypoint x="720" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ogfrr2_di" bpmnElement="Flow_0ogfrr2">
-        <di:waypoint x="820" y="120" />
-        <di:waypoint x="882" y="120" />
+      <bpmndi:BPMNEdge id="Flow_1f2v121_di" bpmnElement="Flow_1f2v121">
+        <di:waypoint x="500" y="120" />
+        <di:waypoint x="560" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0uxhio8_di" bpmnElement="Flow_0uxhio8">
+        <di:waypoint x="340" y="120" />
+        <di:waypoint x="400" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_160g9vg_di" bpmnElement="Flow_160g9vg">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="240" y="120" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="102" width="36" height="36" />

@@ -2,6 +2,7 @@ package org.camunda;
 
 
 import org.camunda.dto.Input;
+import org.camunda.dto.Output;
 import org.camunda.feel.syntaxtree.In;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class Controllers {
 	}
 
 	@GetMapping("/connector/square/{square}")
-	public ResponseEntity<Integer> square(@PathVariable Integer square) {
-		return new ResponseEntity<>(square*2, HttpStatus.OK);
+	public ResponseEntity<Output> square(@PathVariable Integer square) {
+		return new ResponseEntity<>(new Output(square*2, "Oops!, Bad request been sent."), HttpStatus.OK);
 	}
 }
