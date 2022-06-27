@@ -8,7 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Random;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 @RestController
 public class Controllers {
@@ -38,5 +41,19 @@ public class Controllers {
 	@GetMapping("/connector/square/{square}")
 	public ResponseEntity<Output> square(@PathVariable Integer square) {
 		return new ResponseEntity<>(new Output(square*2, "Oops!, Bad request been sent."), HttpStatus.OK);
+	}
+
+	@GetMapping("/version/{artifact}")
+	public ResponseEntity<Object> version(@PathVariable String artifact) {
+		try {
+			//mvn versions:display-dependency-updates
+			Manifest manifest = new Manifest(Class.forName(artifact).getResourceAsStream("/META-INF/manifest.mf"));
+			Object obj = manifest.getMainAttributes().get(Attributes.Name.IMPLEMENTATION_VERSION);
+			System.out.println(obj);
+			return new ResponseEntity<>(obj, HttpStatus.OK);
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

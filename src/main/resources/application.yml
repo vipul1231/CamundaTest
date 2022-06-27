@@ -21,7 +21,7 @@ camunda.bpm:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5432/camunda
+    url: jdbc:postgresql://localhost:5432/camunda
     username: vipul-anky
     password: test
   # JPA properties
